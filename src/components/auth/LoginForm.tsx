@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Leaf, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 
@@ -13,16 +12,15 @@ interface LoginFormProps {
 }
 
 export const LoginForm: React.FC<LoginFormProps> = ({ onToggle }) => {
-  const [email, setEmail] = useState('');
+  const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
-  const [role, setRole] = useState<UserRole | ''>('');
   const { login, isLoading } = useAuth();
   const { toast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!email || !password || !role) {
+    if (!username || !password) {
       toast({
         title: "Validation Error",
         description: "Please fill in all fields",
@@ -32,7 +30,7 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onToggle }) => {
     }
 
     try {
-      await login(email, password, role as UserRole);
+      await login(username, password);
       toast({
         title: "Login Successful",
         description: `Welcome back to Green Ledger!`,
@@ -62,13 +60,13 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onToggle }) => {
       <CardContent>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="email">Email</Label>
+            <Label htmlFor="username">Username</Label>
             <Input
-              id="email"
-              type="email"
-              placeholder="Enter your email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              id="username"
+              type="text"
+              placeholder="Enter username (producer, buyer, or regulator)"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
               required
             />
           </div>
@@ -82,19 +80,6 @@ export const LoginForm: React.FC<LoginFormProps> = ({ onToggle }) => {
               onChange={(e) => setPassword(e.target.value)}
               required
             />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="role">Role</Label>
-            <Select value={role} onValueChange={(value) => setRole(value as UserRole)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select your role" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="producer">Producer</SelectItem>
-                <SelectItem value="buyer">Buyer</SelectItem>
-                <SelectItem value="regulator">Regulator</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
           <Button 
             type="submit" 

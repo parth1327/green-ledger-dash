@@ -11,7 +11,7 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string, role: UserRole) => Promise<void>;
+  login: (username: string, password: string) => Promise<void>;
   register: (email: string, password: string, name: string, role: UserRole) => Promise<void>;
   logout: () => void;
   isLoading: boolean;
@@ -35,17 +35,33 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  const login = async (email: string, password: string, role: UserRole) => {
+  const login = async (username: string, password: string) => {
     setIsLoading(true);
+    
+    // Auto-detect role based on username
+    let role: UserRole;
+    const lowerUsername = username.toLowerCase();
+    
+    if (lowerUsername === 'producer' || lowerUsername.includes('producer')) {
+      role = 'producer';
+    } else if (lowerUsername === 'buyer' || lowerUsername.includes('buyer')) {
+      role = 'buyer';
+    } else if (lowerUsername === 'regulator' || lowerUsername.includes('regulator')) {
+      role = 'regulator';
+    } else {
+      // Default fallback or throw error
+      setIsLoading(false);
+      throw new Error('Invalid username. Use "producer", "buyer", or "regulator"');
+    }
     
     // Mock login - replace with actual API call
     await new Promise(resolve => setTimeout(resolve, 1000));
     
     const mockUser: User = {
       id: Math.random().toString(36).substr(2, 9),
-      email,
+      email: `${username}@greenledger.com`,
       role,
-      name: email.split('@')[0]
+      name: username
     };
     
     setUser(mockUser);
